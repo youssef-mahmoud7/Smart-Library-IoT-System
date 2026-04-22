@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Smart Library Dashboard</title>
+  <link rel="stylesheet" href="smart_library.css">
+</head>
+<body>
+  <div class="background-glow background-glow-left"></div>
+  <div class="background-glow background-glow-right"></div>
+
+  <div id="appShell" class="shell">
+    <aside class="sidebar">
+      <div class="brand-block" style="display: none;">
+        <p class="eyebrow">Embedded Admin</p>
+        <h2>Library Node</h2>
+        <p class="brand-copy">ESP32 access point, local server, and local storage in one device.</p>
+      </div>
+      <nav class="sidebar-nav" aria-label="Primary">
+        <button class="nav-link active" data-view="dashboardView" type="button">Dashboard</button>
+        <button class="nav-link admin-only" data-view="studentsView" type="button">Students</button>
+        <button class="nav-link" data-view="booksView" type="button">Books</button>
+        <button class="nav-link admin-only" data-view="logsView" type="button">Logs</button>
+        <button class="nav-link admin-only" data-view="actionsView" type="button">Actions</button>
+      </nav>
+
+      <div id="publicNotice" class="sidebar-card public-notice">
+        <span class="meta-label">Public View</span>
+        <strong>Live library status is open.</strong>
+        <p class="brand-copy">Use the admin button to unlock student, books, logs, and scanner controls.</p>
+      </div>
+
+      <div class="sidebar-footer admin-only">
+        <div class="sidebar-card">
+          <span class="meta-label">Access Point</span>
+          <strong id="apNameLabel">Library-ESP32</strong>
+        </div>
+        <div class="sidebar-card">
+          <span class="meta-label">Local Address</span>
+          <strong id="ipAddressLabel">192.168.4.1</strong>
+        </div>
+      </div>
+    </aside>
+
+    <div class="content-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Realtime Monitoring</p>
+          <h1>Smart Library Dashboard</h1>
+          <p class="topbar-copy">Monitor crowd level, student entries, books, and recent activity.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <span id="connectionBadge" class="status-chip status-neutral">Disconnected</span>
+          <button id="refreshButton" class="secondary-button" type="button">Refresh Now</button>
+          <button id="adminLoginButton" class="admin-button" type="button" aria-label="Admin login">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 3.2 5 1.9v3.9c0 3.7-2.2 7.1-5 8.4-2.8-1.3-5-4.7-5-8.4V7.1l5-1.9Zm0 2.3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm-4 8.3c1.1-1.8 2.6-2.8 4-2.8s2.9 1 4 2.8H8Z"></path>
+            </svg>
+            <span>Admin</span>
+          </button>
+          <div id="adminProfile" class="admin-profile hidden" aria-label="Administrator">
+            <span class="admin-avatar">👤</span>
+            <span class="admin-label">Admin</span>
+          </div>
+          <button id="logoutButton" class="ghost-button hidden" type="button">Logout</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section id="dashboardView" class="view active">
+          <div class="card-grid">
+            <article class="info-card crowd-card">
+              <div class="card-head">
+                <span class="meta-label">Crowd Status</span>
+                <span id="crowdBadge" class="status-chip status-neutral">Unknown</span>
+              </div>
+              <h3 id="crowdValue">Waiting for data</h3>
+              <p class="card-copy">The crowd state is derived from the current people count inside the library.</p>
+            </article>
+
+            <article class="info-card">
+              <span class="meta-label">People Count</span>
+              <h3 id="peopleCountValue">0</h3>
+              <p class="card-copy">Current number of people detected inside the reading area.</p>
+            </article>
+
+            <article class="info-card">
+              <span class="meta-label">Students Inside</span>
+              <h3 id="studentsInsideValue">0</h3>
+              <p class="card-copy">Students marked as present after successful RFID entry scans.</p>
+            </article>
+
+            <article class="info-card">
+              <span class="meta-label">Book Records</span>
+              <h3 id="booksTotalValue">0</h3>
+              <p class="card-copy">Total locally stored books tracked on the ESP32.</p>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article id="esp32StatusPanel" class="panel admin-only">
+              <div class="panel-head">
+                <div>
+                  <span class="meta-label">System Health</span>
+                  <h2>ESP32 Status</h2>
+                </div>
+                <span id="lastSyncLabel" class="subtle-text">Never synced</span>
+              </div>
+
+              <div class="health-grid">
+                <div class="health-item">
+                  <span class="meta-label">Free Heap</span>
+                  <strong id="heapValue">0 B</strong>
+                </div>
+                <div class="health-item">
+                  <span class="meta-label">Storage Used</span>
+                  <strong id="storageValue">0%</strong>
+                </div>
+                <div class="health-item">
+                  <span class="meta-label">Server State</span>
+                  <strong id="serverStateValue">Idle</strong>
+                </div>
+                <div class="health-item">
+                  <span class="meta-label">Uptime</span>
+                  <strong id="uptimeValue">0s</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel admin-only">
+              <div class="panel-head">
+                <div>
+                  <span class="meta-label">Recent Activity</span>
+                  <h2>Live Feed</h2>
+                </div>
+              </div>
+              <ul id="activityFeed" class="activity-feed"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="studentsView" class="view">
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="meta-label">RFID Attendance</span>
+                <h2>Students</h2>
+              </div>
+              <span id="studentTableMeta" class="subtle-text">0 records</span>
+            </div>
+
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Entry Time</th>
+                    <th>Exit Time</th>
+                    <th class="admin-only">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsTableBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- Books View – Bookshelf layout -->
+        <section id="booksView" class="view">
+          <article class="panel bookshelf-panel">
+            <div class="panel-head">
+              <div>
+                <span class="meta-label">Barcode Inventory</span>
+                <h2>Books</h2>
+              </div>
+              <div class="panel-actions">
+                <!-- Admin camera trigger -->
+                <button id="cameraAddBookBtn" class="camera-trigger admin-only" type="button" title="Add book via camera">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+                  </svg>
+                  <span>Scan Book</span>
+                </button>
+                <!-- Public borrow button (visible to non-admin) -->
+                <button id="publicBorrowBtn" class="borrow-trigger public-only" type="button">
+                  <span>📖 Borrow a Book</span>
+                </button>
+                <span id="bookShelfMeta" class="subtle-text">0 books</span>
+              </div>
+            </div>
+                        <!-- Bookshelf container (dynamic) -->
+            <div id="bookshelfContainer" class="bookshelf-container">
+              <!-- Shelves will be rendered here by JavaScript -->
+              <div class="empty-state">Loading bookshelf...</div>
+            </div>
+          </article>
+        </section>
+
+        <section id="logsView" class="view">
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="meta-label">Local Event History</span>
+                <h2>Logs</h2>
+              </div>
+              <span id="logsTableMeta" class="subtle-text">0 events</span>
+            </div>
+
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+                <tbody id="logsTableBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="actionsView" class="view">
+          <div class="action-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="meta-label">Manual Test Tool</span>
+                  <h2>RFID Transaction</h2>
+                </div>
+              </div>
+
+              <form id="rfidForm" class="action-form" novalidate>
+                <label class="field">
+                  <span>Student ID</span>
+                  <input id="rfidIdInput" name="studentId" type="text" placeholder="Example: STU-1001" required>
+                </label>
+
+                <label class="field">
+                  <span>Student Name</span>
+                  <input id="rfidNameInput" name="studentName" type="text" placeholder="Example: Sara Hassan">
+                </label>
+
+                <label class="field">
+                  <span>Action</span>
+                  <select id="rfidActionInput" name="rfidAction">
+                    <option value="toggle">Toggle Entry / Exit</option>
+                    <option value="entry">Force Entry</option>
+                    <option value="exit">Force Exit</option>
+                  </select>
+                </label>
+
+                <button id="rfidSubmitButton" type="submit" class="primary-button">Send RFID Scan</button>
+                <p class="form-help">Posts JSON to <code>/rfid</code> and refreshes the local tables after success.</p>
+              </form>
+            </article>
+
+            <article class="panel">
+              <div class="panel-head">
+                <div>
+                  <span class="meta-label">Manual Test Tool</span>
+                  <h2>Barcode Transaction</h2>
+                </div>
+              </div>
+
+              <form id="barcodeForm" class="action-form" novalidate>
+                <label class="field">
+                  <span>Book Code</span>
+                  <input id="barcodeCodeInput" name="bookCode" type="text" placeholder="Example: BK-2001" required>
+                </label>
+
+                <label class="field">
+                  <span>Book Title</span>
+                  <input id="barcodeTitleInput" name="bookTitle" type="text" placeholder="Example: Embedded Systems Basics">
+                </label>
+
+                <label class="field">
+                  <span>Author</span>
+                  <input id="barcodeAuthorInput" name="bookAuthor" type="text" placeholder="Example: A. Naguib">
+                </label>
+
+                <label class="field">
+                  <span>Action</span>
+                  <select id="barcodeActionInput" name="barcodeAction">
+                    <option value="lookup">Check Status</option>
+                    <option value="add">Add Book</option>
+                    <option value="borrow">Borrow Book</option>
+                    <option value="return">Return Book</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Holder Student ID</span>
+                  <input id="barcodeHolderInput" name="holderId" type="text" placeholder="Optional for borrow / return">
+                </label>
+
+                <button id="barcodeSubmitButton" type="submit" class="primary-button">Send Barcode Scan</button>
+                <p class="form-help">Posts JSON to <code>/barcode</code> for lookup, add, borrow, or return operations.</p>
+              </form>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card">
+      <button id="closeLoginModalButton" class="modal-close" type="button" aria-label="Close admin login">X</button>
+
+      <div class="login-copy modal-copy">
+        <p class="eyebrow">Admin Access</p>
+        <h2 id="loginModalTitle">Unlock Dashboard Controls</h2>
+        <p class="login-text">
+          Public users can view the library status. Admin login unlocks student records, books, logs, and scan actions.
+        </p>
+        <div class="login-meta">
+          <div class="meta-item">
+            <span class="meta-label">Default Username</span>
+            <strong>admin</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Default Password</span>
+            <strong>library123</strong>
+          </div>
+        </div>
+      </div>
+
+      <form id="loginForm" class="login-form modal-form" novalidate>
+        <label class="field">
+          <span>Username</span>
+          <input id="usernameInput" name="username" type="text" placeholder="Enter admin username" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input id="passwordInput" name="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+        </label>
+
+        <button type="submit" class="primary-button">Unlock Dashboard</button>
+        <p id="loginError" class="form-error" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Book Tooltip (for shelf hover) -->
+  <div id="bookTooltip" class="book-tooltip hidden"></div>
+
+  <!-- Book Detail Card (enlarged view) -->
+  <div id="bookCard" class="book-card hidden">
+    <div class="book-card-inner">
+      <button class="book-card-close" id="closeBookCardBtn" type="button">✕</button>
+      <div class="book-card-cover" id="bookCardCover">
+        <span class="book-card-title" id="bookCardTitle"></span>
+      </div>
+      <div class="book-card-body">
+        <div class="book-card-status" id="bookCardStatus"></div>
+        <div class="book-card-author" id="bookCardAuthor"></div>
+        <div class="book-card-borrower" id="bookCardBorrower"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera Capture Modal -->
+  <div id="cameraModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cameraModalTitle">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card camera-modal-card">
+      <button class="modal-close" id="closeCameraModalBtn" type="button">✕</button>
+      <div class="camera-modal-content">
+        <h3 id="cameraModalTitle">Add New Book</h3>
+        
+        <div id="step1Barcode">
+          <p class="camera-hint">Step 1: Scan the book's barcode (Mandatory)</p>
+          <div id="admin-qr-reader" style="width:100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);"></div>
+        </div>
+
+        <div id="step2Cover" class="hidden">
+          <p class="camera-hint" style="color: var(--green); font-weight: bold;">✅ Barcode Scanned! Now, capture the cover.</p>
+          <div class="camera-preview">
+            <video id="cameraVideo" autoplay playsinline></video>
+            <canvas id="cameraCanvas" class="hidden"></canvas>
+          </div>
+          <div class="camera-controls">
+            <button id="capturePhotoBtn" class="primary-button" type="button">Capture Cover</button>
+            <button id="retakePhotoBtn" class="secondary-button hidden" type="button">Retake</button>
+          </div>
+        </div>
+
+        <form id="cameraBookForm" class="action-form hidden" novalidate style="margin-top: 16px;">
+          <label class="field">
+            <span>Book Code (Auto-filled)</span>
+            <input id="cameraBookCode" type="text" readonly required style="background: var(--line); cursor: not-allowed;">
+          </label>
+          <label class="field">
+            <span>Title</span>
+            <input id="cameraBookTitle" type="text" placeholder="Example: Embedded Systems" required>
+          </label>
+          <label class="field">
+            <span>Author</span>
+            <input id="cameraBookAuthor" type="text" placeholder="Author name">
+          </label>
+          <input type="hidden" id="cameraImageData">
+          <button type="submit" class="primary-button" style="width: 100%;">Save to ESP32 & SD Card</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div id="editStudentModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editStudentModalTitle">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card small-modal">
+      <button class="modal-close" id="closeEditStudentModalBtn" type="button">✕</button>
+      <h3 id="editStudentModalTitle">Edit Student Name</h3>
+      <form id="editStudentForm" class="modal-form" novalidate>
+        <input type="hidden" id="editStudentId">
+        <label class="field">
+          <span>Full Name</span>
+          <input id="editStudentName" type="text" placeholder="Student name" required>
+        </label>
+        <button type="submit" class="primary-button">Save Changes</button>
+        <p id="editStudentError" class="form-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card small-modal confirm-modal">
+      <h3>Confirm Deletion</h3>
+      <p id="deleteConfirmMessage">Are you sure you want to remove this student?</p>
+      <div class="modal-actions">
+        <button id="confirmDeleteBtn" class="danger-button">Delete</button>
+        <button class="secondary-button" data-close-modal="true">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Borrow Flow Modal -->
+  <div id="borrowFlowModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="borrowFlowTitle">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card small-modal borrow-modal">
+      <button class="modal-close" id="closeBorrowModalBtn" type="button">✕</button>
+      <h3 id="borrowFlowTitle">Borrow a Book</h3>
+      <div id="borrowStep1" class="borrow-step">
+        <p class="step-hint">Step 1: Enter book code or scan barcode</p>
+        
+        <button id="startScannerBtn" class="secondary-button" type="button" style="width: 100%; margin-bottom: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg>
+          Open Camera to Scan
+        </button>
+
+        <div id="qr-reader" class="hidden" style="width:100%; margin-bottom: 16px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);"></div>
+        
+        <label class="field">
+          <span>Book Code</span>
+          <input id="borrowBookCode" type="text" placeholder="Example: BK-01" required>
+        </label>
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <button id="nextToStep2" class="primary-button" type="button" style="flex: 1;">Next: Scan RFID</button>
+          <button id="nextToNationalId" class="secondary-button" type="button" style="flex: 1;">Use National ID</button>
+        </div>
+      </div>
+      <div id="borrowStep2" class="borrow-step hidden">
+        <p class="step-hint">Step 2: Scan your student RFID card</p>
+        <label class="field">
+          <span>Student ID</span>
+          <input id="borrowStudentId" type="text" placeholder="Scan or enter student ID" required>
+        </label>
+        <div class="step-actions">
+          <button id="backToStep1" class="secondary-button">Back</button>
+          <button id="confirmBorrow" class="primary-button">Confirm Borrow</button>
+        </div>
+      </div>
+      <div id="borrowStep3" class="borrow-step hidden">
+        <div class="borrow-success">
+          <span class="success-icon">✅</span>
+          <p class="success-message">Borrow successful!</p>
+          <p id="borrowResultDetails" class="result-details"></p>
+          <button id="closeBorrowSuccess" class="primary-button">Done</button>
+        </div>
+      </div>
+      <p id="borrowError" class="form-error"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/html5-qrcode.min.js"></script>
+  <script src="smart_library.js"></script>
+</body>
+</html>
