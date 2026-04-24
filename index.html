@@ -45,11 +45,20 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Realtime Monitoring</p>
-          <h1>Smart Library Dashboard</h1>
-          <p class="topbar-copy">Monitor crowd level, student entries, books, and recent activity.</p>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          
+          <button id="mobileMenuBtn" class="icon-btn mobile-only-btn" type="button" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+          </button>
+          
+          <div>
+            <p class="eyebrow">Realtime Monitoring</p>
+            <h1>Smart Library</h1>
+            <p class="topbar-copy">Monitor crowd level, student entries, and books.</p>
+          </div>
         </div>
+        
+        <div id="sidebarOverlay" class="sidebar-overlay hidden"></div>
 
         <div class="topbar-actions">
           <span id="connectionBadge" class="status-chip status-neutral">Disconnected</span>
