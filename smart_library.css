@@ -1418,3 +1418,78 @@ code {
     height: 160px;
   }
 }
+
+/* إخفاء الزر على الكمبيوتر كوضع افتراضي */
+.mobile-only-btn {
+  display: none !important;
+}
+
+/* طبقة التظليل خلف القائمة (مخفية افتراضياً) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* إعدادات شاشة الموبايل فقط */
+@media (max-width: 760px) {
+
+
+  /* إظهار زر الهامبرغر وتجميله */
+  .mobile-only-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 48px; 
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffffff, rgba(255, 252, 245, 0.8));
+    border: 1px solid rgba(17, 58, 77, 0.15);
+    color: var(--navy);
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(17, 58, 77, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* لكي يظهر فوق القائمة دائماً */
+    position: relative; 
+    z-index: 1001; 
+  }
+
+  /* إعادة اللون الأزرق الجميل عند اللمس أو وقوف الماوس */
+  .mobile-only-btn:hover,
+  .mobile-only-btn:active {
+    background: var(--navy);
+    color: #ffffff;
+    transform: scale(0.95); /* انكماش ناعم بدلاً من الارتفاع */
+    box-shadow: 0 4px 12px rgba(17, 58, 77, 0.2);
+  }
+  /* تحويل القائمة الجانبية لتصبح منزلقة */
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1000;
+    transform: translateX(-100%); /* إخفائها خارج الشاشة يساراً */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    background: rgba(244, 239, 228, 0.95); /* لون خلفية صلب للموبايل */
+  }
+
+  /* الكلاس الذي سيضيفه الجافاسكريبت لفتح القائمة */
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  }
+}

@@ -1337,6 +1337,61 @@ function bindEvents() {
     }
   }); // <-- إغلاق دالة زر التحديث بشكل صحيح هنا
 
+// --- أكواد زر الهامبرغر للموبايل ---
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  // مسارات الأيقونات (SVG Paths)
+  const menuIconPath = "M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"; // شكل ☰
+  const closeIconPath = "M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"; // شكل ✖
+
+  function toggleSidebar() {
+    sidebar.classList.toggle('open');
+    const svgIcon = mobileMenuBtn.querySelector('path');
+    const svgElement = mobileMenuBtn.querySelector('svg');
+
+    // إضافة حركة دوران ناعمة للأيقونة
+    svgElement.style.transition = "transform 0.3s ease";
+
+    if (sidebar.classList.contains('open')) {
+      // إذا فتحت القائمة: أظهر طبقة التظليل، حول الأيقونة إلى ✖، وقم بتدويرها
+      sidebarOverlay.classList.remove('hidden');
+      setTimeout(() => sidebarOverlay.classList.add('show'), 10);
+      document.body.classList.add('modal-open');
+      
+      svgIcon.setAttribute('d', closeIconPath);
+      svgElement.style.transform = "rotate(90deg)";
+    } else {
+      // إذا أغلقت القائمة: اخفِ التظليل، أعد الأيقونة إلى ☰، وأعدها لوضعها الطبيعي
+      sidebarOverlay.classList.remove('show');
+      setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+      document.body.classList.remove('modal-open');
+      
+      svgIcon.setAttribute('d', menuIconPath);
+      svgElement.style.transform = "rotate(0deg)";
+    }
+  }
+
+  if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleSidebar);
+  if (sidebarOverlay) sidebarOverlay.addEventListener('click', toggleSidebar);
+  
+  // ... (باقي كود إغلاق القائمة التلقائي يبقى كما هو)
+  
+
+
+  // إغلاق القائمة تلقائياً عند اختيار أي قسم (Dashboard, Books...)
+  elements.navLinks.forEach(button => {
+    button.addEventListener('click', () => {
+      setView(button.dataset.view);
+      // إذا كانت الشاشة موبايل والقائمة مفتوحة، أغلقها بعد الضغط
+      if (window.innerWidth <= 760 && sidebar.classList.contains('open')) {
+        toggleSidebar();
+      }
+    });
+  });
+  // ------------------------------------
+
   // إعادة رسم رفوف الكتب إذا تغير مقاس الشاشة
   window.addEventListener('resize', () => {
     const newCapacity = getBooksPerShelf();
