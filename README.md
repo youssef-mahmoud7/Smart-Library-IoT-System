@@ -40,7 +40,6 @@ Managing the SPI buses was a bit tricky since both the RFID reader and the SD ca
 6. Connect to the "Smart-Library" Wi-Fi network that the ESP32 broadcasts. A Captive Portal should automatically redirect you to the dashboard.
 
 ## To-Do / Future Improvements
-- [ ] Add an OLED display to show the current occupancy directly on the hardware.
 - [ ] Implement an automatic database backup to the SD card.
 
 ## License
