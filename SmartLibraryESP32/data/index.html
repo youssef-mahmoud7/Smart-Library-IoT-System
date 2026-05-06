@@ -1,15 +1,94 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem("library-dashboard-theme") || "light";
+        var savedLanguage = localStorage.getItem("library-dashboard-language") || "ar";
+        document.documentElement.dataset.theme = savedTheme;
+        document.documentElement.dataset.language = savedLanguage;
+        document.documentElement.lang = savedLanguage;
+        document.documentElement.dir = savedLanguage === "ar" ? "rtl" : "ltr";
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.language = "ar";
+        document.documentElement.lang = "ar";
+        document.documentElement.dir = "rtl";
+      }
+    }());
+  </script>
   <title>Smart Library Dashboard</title>
-  <link rel="stylesheet" href="smart_library.css">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="theme-color" content="#113a4d">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="background-glow background-glow-left"></div>
   <div class="background-glow background-glow-right"></div>
 
+  
+
+<header class="fixed-topbar">
+  <div class="fixed-topbar-left">
+    <button id="mobileMenuBtn" class="icon-btn mobile-only-btn" type="button" aria-label="Menu">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+    </button>
+  </div>
+
+  <div class="fixed-topbar-right" id="topbarControls">
+    <span id="connectionBadge" class="status-chip status-neutral">Disconnected</span>
+
+    <div id="slidingActions" class="sliding-actions">
+  <button id="languageToggleButton" class="icon-btn circle-btn lang-toggle-btn" type="button" title="تغيير اللغة">
+    <span id="languageToggleLabel" class="lang-text">EN</span>
+  </button>
+
+  <button id="themeToggleButton" class="icon-btn circle-btn" type="button" title="تغيير المظهر">
+    <svg class="morphing-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <mask id="moon-mask">
+        <rect x="0" y="0" width="100%" height="100%" fill="white" />
+        <circle class="moon-cutout" cx="24" cy="10" r="6" fill="black" />
+      </mask>
+      <circle class="center-circle" cx="12" cy="12" r="6" fill="currentColor" mask="url(#moon-mask)" />
+      <g class="sun-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </g>
+    </svg>
+  </button>
+
+  <button id="adminLoginButton" class="icon-btn circle-btn admin-btn" type="button" title="دخول المشرف">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 3.2 5 1.9v3.9c0 3.7-2.2 7.1-5 8.4-2.8-1.3-5-4.7-5-8.4V7.1l5-1.9Zm0 2.3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm-4 8.3c1.1-1.8 2.6-2.8 4-2.8s2.9 1 4 2.8H8Z"></path></svg>
+  </button>
+
+  <div id="adminProfile" class="icon-btn circle-btn admin-profile-circle hidden" title="حساب المشرف">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6a3 3 0 1 1-3 3 3 3 0 0 1 3-3zm0 11.5a6.5 6.5 0 0 1-5.5-3.11c.14-1.89 3.66-2.9 5.5-2.9s5.36 1 5.5 2.9A6.5 6.5 0 0 1 12 18.5z"/>
+    </svg>
+  </div>
+
+  <button id="logoutButton" class="icon-btn circle-btn logout-btn hidden" type="button" title="تسجيل الخروج">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+  </button>
+</div>
+    <button id="settingsToggleBtn" class="icon-btn settings-trigger" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="transition: transform 0.4s ease;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49-.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+    </button>
+  </div>
+</header>
+
+    
+  
+  
   <div id="appShell" class="shell">
     <aside class="sidebar">
       <div class="brand-block" style="display: none;">
@@ -34,7 +113,7 @@
       <div class="sidebar-footer admin-only">
         <div class="sidebar-card">
           <span class="meta-label">Access Point</span>
-          <strong id="apNameLabel">Library-ESP32</strong>
+          <strong id="apNameLabel">Smart-Library</strong>
         </div>
         <div class="sidebar-card">
           <span class="meta-label">Local Address</span>
@@ -42,29 +121,18 @@
         </div>
       </div>
     </aside>
+  
+      <div class="content-shell">
+      
+      <div id="sidebarOverlay" class="sidebar-overlay hidden"></div>
 
-    <div class="content-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Realtime Monitoring</p>
-          <h1>Smart Library Dashboard</h1>
-          <p class="topbar-copy">Monitor crowd level, student entries, books, and recent activity.</p>
+          <p class="eyebrow">Real-time Monitoring</p>
+          <h1>Smart Library</h1>
         </div>
-
         <div class="topbar-actions">
-          <span id="connectionBadge" class="status-chip status-neutral">Disconnected</span>
           <button id="refreshButton" class="secondary-button" type="button">Refresh Now</button>
-          <button id="adminLoginButton" class="admin-button" type="button" aria-label="Admin login">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 3.2 5 1.9v3.9c0 3.7-2.2 7.1-5 8.4-2.8-1.3-5-4.7-5-8.4V7.1l5-1.9Zm0 2.3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm-4 8.3c1.1-1.8 2.6-2.8 4-2.8s2.9 1 4 2.8H8Z"></path>
-            </svg>
-            <span>Admin</span>
-          </button>
-          <div id="adminProfile" class="admin-profile hidden" aria-label="Administrator">
-            <span class="admin-avatar">👤</span>
-            <span class="admin-label">Admin</span>
-          </div>
-          <button id="logoutButton" class="ghost-button hidden" type="button">Logout</button>
         </div>
       </header>
 
@@ -86,7 +154,7 @@
               <p class="card-copy">Current number of people detected inside the reading area.</p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card admin-only">
               <span class="meta-label">Students Inside</span>
               <h3 id="studentsInsideValue">0</h3>
               <p class="card-copy">Students marked as present after successful RFID entry scans.</p>
@@ -142,20 +210,73 @@
         </section>
 
         <section id="studentsView" class="view">
+          <article class="panel admin-only student-registry-panel">
+            <div class="panel-head">
+              <div>
+                <span class="meta-label">RFID Student Registry</span>
+                <h2>Scanned Student</h2>
+              </div>
+              <button id="scanRfidButton" class="primary-button" type="button">Read Scanned UID</button>
+            </div>
+
+            <p id="studentRegistryStatus" class="subtle-text">Waiting for the next RFID scan.</p>
+
+            <form id="studentRegistryForm" class="student-registry-form" novalidate>
+              <label class="field">
+                <span>UID</span>
+                <input id="studentUidInput" type="text" readonly placeholder="No UID detected yet">
+              </label>
+
+              <label class="field">
+                <span>Student Name</span>
+                <input id="studentRegistryNameInput" type="text" placeholder="Enter student name">
+              </label>
+
+              <label class="field">
+                <span>National ID</span>
+                <input id="studentNationalIdInput" type="text" inputmode="numeric" placeholder="Enter national ID">
+              </label>
+
+              <label class="field">
+                <span>Gender</span>
+                <select id="studentGenderInput">
+                  <option value="ذكر">ذكر (Male)</option>
+                  <option value="أنثى">أنثى (Female)</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Last Seen</span>
+                <input id="studentLastSeenInput" type="text" readonly placeholder="-">
+              </label>
+
+              <p id="studentRegistryError" class="form-error" aria-live="polite"></p>
+
+              <div class="student-registry-actions">
+                <button id="saveStudentButton" class="primary-button hidden" type="submit">Save Student</button>
+                <button id="updateStudentButton" class="secondary-button hidden" type="button">Edit Student</button>
+                <button id="deleteStudentButton" class="danger-button hidden" type="button">Delete Student</button>
+              </div>
+            </form>
+          </article>
+
           <article class="panel">
             <div class="panel-head">
               <div>
                 <span class="meta-label">RFID Attendance</span>
                 <h2>Students</h2>
               </div>
-              <span id="studentTableMeta" class="subtle-text">0 records</span>
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <input type="search" id="studentSearchInput" class="search-input" placeholder="Search ID or Name..." aria-label="Search students">
+                <span id="studentTableMeta" class="subtle-text">0 records</span>
+              </div>
             </div>
 
             <div class="table-shell">
               <table>
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <th>UID</th>
                     <th>Name</th>
                     <th>Status</th>
                     <th>Entry Time</th>
@@ -178,14 +299,14 @@
                 <h2>Books</h2>
               </div>
               <div class="panel-actions">
-                <!-- Admin camera trigger -->
+                <input type="search" id="bookSearchInput" class="search-input" placeholder="Search Title, Author, Code..." aria-label="Search books">
+                
                 <button id="cameraAddBookBtn" class="camera-trigger admin-only" type="button" title="Add book via camera">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                     <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
                   </svg>
                   <span>Scan Book</span>
                 </button>
-                <!-- Public borrow button (visible to non-admin) -->
                 <button id="publicBorrowBtn" class="borrow-trigger public-only" type="button">
                   <span>📖 Borrow a Book</span>
                 </button>
@@ -207,16 +328,21 @@
                 <span class="meta-label">Local Event History</span>
                 <h2>Logs</h2>
               </div>
-              <span id="logsTableMeta" class="subtle-text">0 events</span>
+              <div class="panel-actions">
+                <button id="downloadHistoryButton" class="secondary-button admin-only" type="button">Download Excel (Last 30 Days)</button>
+                <span id="logsTableMeta" class="subtle-text">0 events</span>
+              </div>
             </div>
 
             <div class="table-shell">
               <table>
                 <thead>
                   <tr>
+                    <th>Name</th>
+                    <th>National ID</th>
+                    <th>UID</th>
                     <th>Time</th>
-                    <th>Type</th>
-                    <th>Message</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="logsTableBody"></tbody>
@@ -243,7 +369,7 @@
 
                 <label class="field">
                   <span>Student Name</span>
-                  <input id="rfidNameInput" name="studentName" type="text" placeholder="Example: Sara Hassan">
+                  <input id="rfidNameInput" name="studentName" type="text" placeholder="Example: Ahmed Hassan">
                 </label>
 
                 <label class="field">
@@ -321,19 +447,9 @@
         <p class="login-text">
           Public users can view the library status. Admin login unlocks student records, books, logs, and scan actions.
         </p>
-        <div class="login-meta">
-          <div class="meta-item">
-            <span class="meta-label">Default Username</span>
-            <strong>admin</strong>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Default Password</span>
-            <strong>library123</strong>
-          </div>
-        </div>
-      </div>
+        
 
-      <form id="loginForm" class="login-form modal-form" novalidate>
+      </div><form id="loginForm" class="login-form modal-form" novalidate>
         <label class="field">
           <span>Username</span>
           <input id="usernameInput" name="username" type="text" placeholder="Enter admin username" autocomplete="username" required>
@@ -422,8 +538,16 @@
       <form id="editStudentForm" class="modal-form" novalidate>
         <input type="hidden" id="editStudentId">
         <label class="field">
+          <span>UID</span>
+          <input id="editStudentUid" type="text" readonly>
+        </label>
+        <label class="field">
           <span>Full Name</span>
           <input id="editStudentName" type="text" placeholder="Student name" required>
+        </label>
+        <label class="field">
+          <span>National ID</span>
+          <input id="editStudentNationalId" type="text" inputmode="numeric" placeholder="National ID" required>
         </label>
         <button type="submit" class="primary-button">Save Changes</button>
         <p id="editStudentError" class="form-error"></p>
@@ -458,7 +582,7 @@
             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
             <line x1="7" y1="12" x2="17" y2="12"></line>
           </svg>
-          Open Camera to Scan
+          <span id="startScannerBtnLabel">Open Camera to Scan</span>
         </button>
 
         <div id="qr-reader" class="hidden" style="width:100%; margin-bottom: 16px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);"></div>
@@ -496,8 +620,32 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="editBookModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editBookModalTitle">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card small-modal">
+      <button class="modal-close" id="closeEditBookModalBtn" type="button">✕</button>
+      <h3 id="editBookModalTitle">تعديل بيانات الكتاب</h3>
+      <form id="editBookForm" class="modal-form" novalidate>
+        <label class="field">
+          <span>كود الكتاب</span>
+          <input id="editBookCode" type="text" readonly style="background: var(--line); cursor: not-allowed;">
+        </label>
+        <label class="field">
+          <span>عنوان الكتاب</span>
+          <input id="editBookTitle" type="text" placeholder="أدخل عنوان الكتاب الجديد" required>
+        </label>
+        <label class="field">
+          <span>المؤلف</span>
+          <input id="editBookAuthor" type="text" placeholder="اسم المؤلف" required>
+        </label>
+        <button type="submit" class="primary-button">حفظ التغييرات</button>
+        <p id="editBookError" class="form-error"></p>
+      </form>
+    </div>
+  </div>
 
-  <script src="/html5-qrcode.min.js"></script>
-  <script src="smart_library.js"></script>
+  <script src="libs/html5_qrcode.min1.js" defer></script>
+  <script src="libs/xlsx.full.min.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
