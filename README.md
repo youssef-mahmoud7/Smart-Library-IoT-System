@@ -44,3 +44,6 @@ Managing the SPI buses was a bit tricky since both the RFID reader and the SD ca
 
 ## License
 This project is open-sourced under the MIT License.
+<img width="1366" height="683" alt="Screenshot (145)" src="https://github.com/user-attachments/assets/e684f18c-f148-41b3-aa24-a29d08e3e11b" />
+
+<img width="1366" height="670" alt="Screenshot (144)" src="https://github.com/user-attachments/assets/22fdc264-5a9d-43d9-9e27-859ee72ad7db" />
